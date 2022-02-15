@@ -45,6 +45,7 @@ df1_tidier <- df1_tidy %>%
   pivot_wider(id_cols = c("GeoFIPS", "Year"),
               names_from = Description,
               values_from = Values)
+
 head(df1_tidier)
 glimpse(df1_tidier)
 View(df1_tidier)
@@ -67,9 +68,16 @@ glimpse(df1_clean)
 
 df1_clean <- df1_clean %>%
   rename(Mining = `  Agriculture, forestry, fishing and hunting`,
-         Ag = `  Mining, quarrying, and oil and gas extraction`)
+         Ag = `  Mining, quarrying, and oil and gas extraction`,
+         PI = ` Private industries`,
+         total = `All industry total`) %>%
+  filter(GeoFIPS != "\"2000\"")
 
+dim(df1_clean)
 glimpse(df1_clean)
+
+length(unique(df1_clean$GeoFIPS))
+length(unique(df1_clean$Year))
 
 View(df1_clean)
 
@@ -77,6 +85,12 @@ df1_clean <- df1_clean %>%
   filter(GeoFIPS != "\"20000\"" )
 
 head(df1_clean)
+
+dim(df1_clean)
+
+df1_clean %>%
+  group_by(Year) %>%
+  summarise_all(~sum(is.na(.)))
 
 df1_clean %>%
   group_by(GeoFIPS) %>%
@@ -87,4 +101,27 @@ df1_clean %>%
 
 df1_clean %>%
   summarise_all(~sd(., na.rm=T))
+
+
+#Tuesday, 02/15/2022-------------------------------------
+
+ggplot(df1_clean) +
+  geom_histogram(aes(x=total))
+
+ggplot(df1_clean) +
+  geom_histogram(aes(x=Ag))
+
+df1_clean %>%
+  filter(Year == 2012) %>%
+ggplot(.) +
+  geom_histogram(aes(x=Ag))
+
+ggplot(df1_clean) +
+  geom_boxplot(aes(x=GeoFIPS, y= total), fill="lightblue", alpha=0.7)+
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 90, size = 5))
+
+ggplot(df1_clean)+
+  geom_point(aes(x=Year, y=Ag))+
+  geom_smooth(aes(x=Year, y=Ag))
 
